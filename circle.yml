@@ -11,5 +11,5 @@ dependencies:
 
 test:
     override:
-        - py.test --flake8 --timeout=10 --cov=./slug
+        - py.test --flake8 --timeout=10 --cov=./slug:
             parallel: true
