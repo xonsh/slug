@@ -1,0 +1,14 @@
+doc-warnings: yes
+test-warnings: yes
+strictness: veryhigh
+max-line-length: 90
+autodetect: yes
+
+python-targets:
+    - 3
+         
+pylint:
+  disable: []
+
+mccabe:
+  disable: []
