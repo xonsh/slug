@@ -17,4 +17,4 @@ install:
 - "%PYTHON%\\python setup.py install"
 build: off
 test_script:
-- "%PYTHON%\\Scripts\\py.test"
+- "%PYTHON%\\Scripts\\py.test --flake8 --timeout=10 --cov=./slug"

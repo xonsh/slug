@@ -44,5 +44,5 @@ before_script:
 
 script:
   - set -e
-  - py.test --timeout=10;
+  - py.test --flake8 --timeout=10 --cov=./slug;
 
