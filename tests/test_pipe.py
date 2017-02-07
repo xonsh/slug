@@ -1,5 +1,6 @@
 from slug import Pipe
 
+
 def test_goesthrough():
     p = Pipe()
     p.side_in.write(b"Hello")

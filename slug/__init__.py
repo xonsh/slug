@@ -1,7 +1,7 @@
-from .utils import *
-from .base import *
+from .utils import *  # noqa
+from .base import *  # noqa
 
 if False:  # Windows
-    from .win import *
+    from .win import *  # noqa
 elif False:  # Posix
-    from .posix import *
+    from .posix import *  # noqa

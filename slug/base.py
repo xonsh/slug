@@ -6,7 +6,8 @@ __all__ = ('Process', 'Pipe', 'ProcessGroup')
 
 
 class Process:
-    def __init__(self, cmd, *, stdin=None, stdout=None, stderr=None, environ=None, priority=None):
+    def __init__(self, cmd, *, stdin=None, stdout=None, stderr=None, 
+                 environ=None, priority=None):
         NotImplemented
 
     def signal(self, signal):
@@ -76,7 +77,8 @@ class Process:
 
     def _virtual_start(self, pid):
         """
-        Mark the process as started when something else somewhere does the starting.
+        Mark the process as started when something else somewhere does the
+        starting.
         """
         NotImplemented
 
@@ -87,7 +89,7 @@ class ProcessGroup:
 
     def __exit__(self, t, exc, b):
         if exc is None:
-            # XXX: Do we want to automatically start the group at the end of the context manager?
+            # XXX: Do we want to automatically start the group?
             NotImplemented
 
     def Process(self, *pargs, **kwargs):
@@ -141,7 +143,10 @@ class Pipe:
 
     @staticmethod
     def _mkpipe():
-        return os.pipe()  # Special Unix flavors should override this with pipe2 if available.
+        if hasattr(os, pipe2):
+            return os.pipe2(0)  # TODO: What flags to use?
+        else:
+            return os.pipe()
 
 
 class PseudoTerminal:
