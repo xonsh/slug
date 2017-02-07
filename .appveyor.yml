@@ -14,7 +14,7 @@ environment:
     # TODO: Miniconda
 install:
 - "%PYTHON%\\Scripts\\pip install -r requirements-tests.txt"
-- "python setup.py develop"
+- "python setup.py install"
 build: off
 test_script:
 - "%PYTHON%\\Scripts\\py.test"
