@@ -135,9 +135,13 @@ class Pipe:
     A one-way byte stream.
     """
     def __init__(self):
-        r, w = os.pipe2(0)  # TODO: Flags
+        r, w = self._mkpipe()
         self.side_in = os.fdopen(w, 'wb', buffering=0)
         self.side_out = os.fdopen(r, 'rb', buffering=0)
+
+    @staticmethod
+    def _mkpipe():
+        return os.pipe()  # Special Unix flavors should override this with pipe2 if available.
 
 
 class PseudoTerminal:
