@@ -12,7 +12,6 @@ matrix:
           python: 3.6
           env: 
             - MINICONDA_OS="Linux"
-            - BUILD_DOCS=true
         - os: linux
           python: "nightly"
         - os: osx
@@ -21,47 +20,29 @@ matrix:
         - os: osx
           language: generic
           env: PYTHON="3.5" MINICONDA_OS="MacOSX"
+        - os: osx
+          language: generic
+          env: PYTHON="3.6" MINICONDA_OS="MacOSX"
     allow_failures:
         - python: "nightly"
 
 before_install:
-  - if [[ ! ("$TRAVIS_PYTHON_VERSION" == "nightly" || "$TRAVIS_PYTHON_VERSION" == "3.6-dev") && ! $BUILD_DOCS ]]; then
-      URL="https://repo.continuum.io/miniconda/Miniconda3-latest-${MINICONDA_OS}-x86_64.sh";
-      wget "${URL}" -O miniconda.sh;
-      bash miniconda.sh -b -p $HOME/miniconda;
-      export PATH="$HOME/miniconda/bin:$PATH";
-      hash -r;
-      conda config --set always_yes yes --set changeps1 no;
-      conda update -q conda;
-      conda info -a;
-    fi
-
+  - URL="https://repo.continuum.io/miniconda/Miniconda3-latest-${MINICONDA_OS}-x86_64.sh";
+    wget "${URL}" -O miniconda.sh;
+    bash miniconda.sh -b -p $HOME/miniconda;
+    export PATH="$HOME/miniconda/bin:$PATH";
+    hash -r;
+    conda config --set always_yes yes --set changeps1 no;
+    conda update -q conda;
+    conda info -a;
+  
 install:
-  - if [[ $BUILD_DOCS = true ]]; then
-      python setup.py install;
-      pip install -r requirements-docs.txt;
-      pip install pygments prompt_toolkit ply psutil ipykernel matplotlib;
-      pip install git+https://github.com/drdoctr/doctr.git@master;
-    else
-      pip install -r requirements-tests.txt;
-    fi
+  - pip install -r requirements-tests.txt;
 
 before_script:
   - rvm get head || true
 
 script:
   - set -e
-  - if [[ $BUILD_DOCS = true ]]; then
-      cd docs;
-      make html;
-      cd ..;
-      doctr deploy --deploy-repo xonsh/xonsh-docs --gh-pages-docs dev;
-      git checkout $(git describe --tags `git rev-list --tags --max-count=1`);
-      cd docs;
-      make clean html;
-      cd ..;
-      doctr deploy --deploy-repo xonsh/xonsh-docs --gh-pages-docs .;
-    else
-      py.test --timeout=10;
-    fi
+  - py.test --timeout=10;
 
