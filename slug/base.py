@@ -1,6 +1,7 @@
 """
 Base, non-system specific abstract implementations.
 """
+import os
 __all__ = ('Process', 'Pipe', 'ProcessGroup')
 
 
@@ -134,7 +135,9 @@ class Pipe:
     A one-way byte stream.
     """
     def __init__(self):
-        self.side_in, self.side_out = NotImplemented, NotImplemented
+        r, w = os.pipe2(0)  # TODO: Flags
+        self.side_in = os.fdopen(w, 'wb', buffering=0)
+        self.side_out = os.fdopen(r, 'rb', buffering=0)
 
 
 class PseudoTerminal:
