@@ -1,0 +1,1 @@
+from slug import Pipe
