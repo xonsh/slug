@@ -4,12 +4,12 @@ machine:
 
 dependencies:
     post:
-        - case $CIRCLE_NODE_INDEX in 0) pip install -r requirements-tests.txt ;; esac:
-            parallel: false
+        - pip install -r requirements-tests.txt:
+            parallel: true
         - python setup.py install:
             parallel: true
 
 test:
     override:
-        - case $CIRCLE_NODE_INDEX in 0) py.test --flake8 --timeout=10 --cov=./slug;; 1) py.test --timeout=10 ;; esac:
+        - py.test --flake8 --timeout=10 --cov=./slug
             parallel: true
