@@ -1,6 +1,4 @@
 machine:
-    environment:
-        PATH: /home/ubuntu/miniconda/envs/test_env/bin:/home/ubuntu/miniconda/bin:$PATH
     post:
         - pyenv global 3.4.4 3.5.2
 
@@ -8,7 +6,7 @@ dependencies:
     post:
         - case $CIRCLE_NODE_INDEX in 0) pip install -r requirements-tests.txt ;; esac:
             parallel: false
-        - case $CIRCLE_NODE_INDEX in 0) python setup.py install ;; 1) python setup.py install ;; esac:
+        - python setup.py install:
             parallel: true
 
 test:
