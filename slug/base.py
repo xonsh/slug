@@ -6,7 +6,7 @@ __all__ = ('Process', 'Pipe', 'ProcessGroup')
 
 
 class Process:
-    def __init__(self, cmd, *, stdin=None, stdout=None, stderr=None, 
+    def __init__(self, cmd, *, stdin=None, stdout=None, stderr=None,
                  environ=None, priority=None):
         NotImplemented
 
