@@ -17,7 +17,6 @@ class Process:
         self.environ = environ
         self._proc = None
 
-
     def signal(self, signal):
         """
         Send a request to the process
@@ -73,7 +72,7 @@ class Process:
         """
         self._proc = subprocess.Popen(
             self.cmd, stdin=self.stdin, stdout=self.stdout, stderr=self.stderr,
-            cwd=self.cwd, environ=self.environ
+            cwd=self.cwd, env=self.environ
         )
 
     def join(self):
