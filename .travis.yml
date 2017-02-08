@@ -8,17 +8,17 @@ matrix:
         - os: linux
           python: "nightly"
         - os: osx
-          language: generic
+          python: 3.4
         - os: osx
-          language: generic
+          python: 3.5
         - os: osx
-          language: generic
+          python: 3.6
     allow_failures:
         - python: "nightly"
 
 install:
-  - pip install -r requirements-tests.txt;
+  - pip install -r requirements-tests.txt
 
 script:
-  - py.test --flake8 --timeout=10 --cov=./slug;
+  - py.test --flake8 --timeout=10 --cov=./slug
 
