@@ -22,4 +22,5 @@ install:
 
 script:
   - py.test --flake8 --timeout=10 --cov=./slug
+  - bash <(curl -s https://codecov.io/bash)
 
