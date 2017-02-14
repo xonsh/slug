@@ -38,17 +38,29 @@ class Process:
         """
         return self._proc is not None
 
+    INIT = "init"
+    RUNNING = "running"
+    PAUSED = "paused"
+    FINISHED = "finished"
+
+
     @property
     def status(self):
         """
         The status of the process, one of:
 
-        * ...: The process has not yet started
-        * ...: The process is currently running
-        * ...: The process is paused
-        * ...: The process has exited
+        * INIT: The process has not yet started
+        * RUNNING: The process is currently running
+        * PAUSED: The process is paused
+        * FINISHED: The process has exited
         """
-        NotImplemented
+        if self._proc is None:
+            return self.INIT
+        elif self._proc.returncode is not None:
+            return self.FINISHED
+        else:
+            # TODO: How to tell if a process is currently stopped?
+            return self.RUNNING
 
     @property
     def pid(self):
