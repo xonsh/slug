@@ -18,5 +18,6 @@ install:
 build: off
 test_script:
 - "%PYTHON%\\Scripts\\py.test --flake8 --timeout=10 --cov=./slug"
+- "dir %PYTHON%\\Scripts"
 after_test:
   - "%PYTHON%\\python %PYTHON%\\Scripts\\codecov.py"
