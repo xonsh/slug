@@ -140,10 +140,7 @@ class Pipe:
 
     @staticmethod
     def _mkpipe():
-        if hasattr(os, 'pipe2'):
-            return os.pipe2(0)  # TODO: What flags to use?
-        else:
-            return os.pipe()
+        return os.pipe()
 
 
 class PseudoTerminal:
