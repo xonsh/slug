@@ -19,4 +19,4 @@ build: off
 test_script:
 - "%PYTHON%\\Scripts\\py.test --flake8 --timeout=10 --cov=./slug"
 after_test:
-  - "%PYTHON%\\Scripts\\codecov"
+  - "%PYTHON%\\python %PYTHON%\\Scripts\\codecov.py"
