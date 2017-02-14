@@ -30,7 +30,7 @@ def test_pipe_output():
 
 def test_pipe_output():
     pi = Pipe()
-    proc = Process([sys.executable, '-c', r'import sys; sys.exit(sys.stdin.readline() == "spam\n")'], stdin=pi.side_out)
+    proc = Process([sys.executable, '-c', r'import sys; sys.exit(input() == "spam")'], stdin=pi.side_out)
     proc.start()
     pi.side_in.write(b"spam\n")
     pi.side_in.close()
@@ -42,7 +42,7 @@ def test_pipe_output():
 def test_inner_pipe():
     pi = Pipe()
     producer = Process([sys.executable, '-c', r'print("eggs")'], stdout=pi.side_in)
-    consumer = Process([sys.executable, '-c', r'import sys; sys.exit(sys.stdin.readline() == "eggs\n")'], stdin=pi.side_out)
+    consumer = Process([sys.executable, '-c', r'import sys; sys.exit(input() == "eggs")'], stdin=pi.side_out)
     producer.start()
     consumer.start()
     producer.join()
@@ -54,7 +54,7 @@ def test_inner_pipe():
 def test_inner_pipe_reversed_order():
     pi = Pipe()
     producer = Process([sys.executable, '-c', r'print("eggs")'], stdout=pi.side_in)
-    consumer = Process([sys.executable, '-c', r'import sys; sys.exit(sys.stdin.readline() == "eggs\n")'], stdin=pi.side_out)
+    consumer = Process([sys.executable, '-c', r'import sys; sys.exit(input() == "eggs")'], stdin=pi.side_out)
     consumer.start()
     producer.start()
     consumer.join()
