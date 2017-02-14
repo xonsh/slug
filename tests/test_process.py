@@ -28,7 +28,7 @@ def test_pipe_output():
     # Pipe is closed but process might still be live
     proc.join()  # Commenting this out causes data to be None?
     assert proc.return_code == 0
-    assert data == b'hello\n'
+    assert data in (b'hello\n', b'hello\r\n')
 
 
 def test_pipe_input():
