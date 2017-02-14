@@ -43,7 +43,6 @@ class Process:
     PAUSED = "paused"
     FINISHED = "finished"
 
-
     @property
     def status(self):
         """
