@@ -7,12 +7,14 @@ matrix:
           python: 3.6
         - os: linux
           python: "nightly"
-        #- os: osx
-        #  python: 3.4
-        #- os: osx
-        #  python: 3.5
+        # - os: osx
+        #   python: 3.4
+        # - os: osx
+        #   python: 3.5
+        # - os: osx
+        #   python: 3.6
         - os: osx
-          python: 3.6
+          python: "nightly"
     allow_failures:
         - python: "nightly"
 
