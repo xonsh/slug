@@ -8,3 +8,15 @@ def test_goesthrough():
 
     data = p.side_out.read()
     assert data == b'Hello'
+
+
+def test_eof():
+    p = Pipe()
+    p.side_in.write(b"spam")
+
+    data = p.side_out.read()
+    assert data == b'spam'
+
+    p.side_in.close()
+    data = p.side_out.read()
+    assert data == b''

@@ -31,6 +31,7 @@ def test_terminate_process():
     proc = Process(runpy('input()'))
     proc.start()
     proc.terminate()
+    proc.join()
     assert proc.return_code != 0
 
 
@@ -78,3 +79,16 @@ def test_inner_pipe_reversed_order():
     prod.join()
     assert prod.return_code == 0
     assert cons.return_code == 1
+
+
+def test_partial_output():
+    pi = Pipe()
+    proc = Process(
+        runpy('print("foo", flush=True); input(); print("bar", flush=True)'),
+        stdout=pi.side_in,
+    )
+    proc.start()
+    data = pi.side_out.readline()
+    proc.terminate()  # Commenting this out causes data to be None?
+    proc.join()
+    assert data in (b'foo\n', b'foo\r\n')
