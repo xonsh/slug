@@ -3,7 +3,6 @@ Base, non-system specific abstract implementations.
 """
 import os
 import subprocess
-import signal
 __all__ = ('Process', 'Pipe', 'ProcessGroup')
 
 
@@ -43,16 +42,16 @@ class Process:
         """
         Pause the process, able to be continued later
         """
-        # A very POSIX way of doing it
-        self.signal(signal.SIGSTOP)
+        # No cross-platform way to do this
+        raise NotImplementedError
 
     def unpause(self):
         # continue is a reserved word
         """
         Continue the process after it's been paused
         """
-        # A very POSIX way of doing it
-        self.signal(signal.SIGCONT)
+        # No cross-platform way to do this
+        raise NotImplementedError
 
     @property
     def started(self):

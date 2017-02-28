@@ -130,6 +130,7 @@ def iter_for_time(amount, iterable):
     while time.time() < end:
         yield next(it)
 
+
 def test_pause_unpause():
     import time
     pi = Pipe()
@@ -147,8 +148,8 @@ def test_pause_unpause():
     above = [float(ts.decode('utf-8').rstrip('\r\n')) for ts in iter_for_time(1, pi.side_out) if ts]
     proc.terminate()
 
-
-    # We don't have a non-blocking way to flush, so we're just hoping that 1s is enough time to get what was stashed.
+    # We don't have a non-blocking way to flush, so we're just hoping that 1s is
+    # enough time to get what was stashed.
     timestamps = below + above
 
     # Calculate the mean, assume its in the paused area, and calculate the gap
