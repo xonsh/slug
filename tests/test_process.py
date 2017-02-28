@@ -53,7 +53,7 @@ def test_pipe_input():
     pi.side_in.write(b"spam\n")
     pi.side_in.close()
     # Pipe is closed but process might still be live
-    proc.join()  # Commenting this out causes data to be None?
+    proc.join()
     assert proc.return_code == 1
 
 
@@ -89,6 +89,19 @@ def test_partial_output():
     )
     proc.start()
     data = pi.side_out.readline()
-    proc.terminate()  # Commenting this out causes data to be None?
+    proc.terminate()
     proc.join()
+    assert data in (b'foo\n', b'foo\r\n')
+
+
+def test_partial_buffered_output():
+    pi = Pipe()
+    proc = Process(
+        runpy('print("foo", flush=True); input(); print("bar", flush=True)'),
+        stdout=pi.side_in,
+    )
+    proc.start()
+    proc.terminate()
+    proc.join()
+    data = pi.side_out.read()
     assert data in (b'foo\n', b'foo\r\n')
