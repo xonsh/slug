@@ -94,6 +94,7 @@ class Process:
         """
         The return code of the process. None if it hasn't returned yet.
         """
+        # TODO: what's the result if it exits from signal/error? Thinking not an int
         if self._proc is not None:
             return self._proc.returncode
 

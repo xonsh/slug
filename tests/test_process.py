@@ -20,6 +20,20 @@ def test_failed_command():
     assert proc.return_code == 42
 
 
+def test_kill_process():
+    proc = Process(runpy('input()'))
+    proc.start()
+    proc.kill()
+    assert proc.return_code != 0
+
+
+def test_terminate_process():
+    proc = Process(runpy('input()'))
+    proc.start()
+    proc.terminate()
+    assert proc.return_code != 0
+
+
 def test_pipe_output():
     pi = Pipe()
     proc = Process(runpy('print("hello")'), stdout=pi.side_in)
