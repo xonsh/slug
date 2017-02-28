@@ -19,17 +19,37 @@ class Process:
 
     def signal(self, signal):
         """
-        Send a request to the process
+        Send a request to the process, by POSIX signal number
         """
         if self._proc:
             self._proc.send_signal(signal)
 
-    def terminate(self):
+    def kill(self):
         """
         Forcibly quit the process
         """
         if self._proc:
             self._proc.kill()
+
+    def terminate(self):
+        """
+        Ask the process to exit quickly
+        """
+        if self._proc:
+            self._proc.terminate()
+
+    def pause(self):
+        """
+        Pause the process, able to be continued later
+        """
+        raise NotImplementedError
+
+    def unpause(self):
+        # continue is a reserved word
+        """
+        Continue the process after it's been paused
+        """
+        raise NotImplementedError
 
     @property
     def started(self):
