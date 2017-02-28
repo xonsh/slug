@@ -53,6 +53,7 @@ def test_iter_eof():
     with pytest.raises(StopIteration):
         next(riter)
 
+
 def test_chunk():
     p = Pipe()
     p.side_in.write(b"Hello")
