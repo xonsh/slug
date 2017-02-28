@@ -121,3 +121,42 @@ def test_error_output():
     proc.join()
     data = pi.side_out.read()
     assert data in (b'bar\n', b'bar\r\n')
+
+
+def iter_for_time(amount, iterable):
+    import time
+    it = iter(iterable)
+    end = time.time() + amount
+    while time.time() < end:
+        yield next(it)
+
+def test_pause_unpause():
+    import time
+    pi = Pipe()
+    proc = Process(
+        runpy('import time\nwhile True: print(time.time(), flush=True)'),
+        stdout=pi.side_in,
+    )
+    proc.start()
+    pi.side_in.close()  # Remove our reference on this end of the pipe, now that the child has one
+
+    below = [float(ts.decode('utf-8').rstrip('\r\n')) for ts in iter_for_time(1, pi.side_out) if ts]
+    proc.pause()
+    time.sleep(1)
+    proc.unpause()
+    above = [float(ts.decode('utf-8').rstrip('\r\n')) for ts in iter_for_time(1, pi.side_out) if ts]
+    proc.terminate()
+
+
+    # We don't have a non-blocking way to flush, so we're just hoping that 1s is enough time to get what was stashed.
+    timestamps = below + above
+
+    # Calculate the mean, assume its in the paused area, and calculate the gap
+    # in the timestamps from that pause.
+    mean = sum(timestamps) / len(timestamps)
+    below = [ts for ts in timestamps if ts < mean]
+    above = [ts for ts in timestamps if ts > mean]
+    pause_begin = max(below)
+    pause_end = min(above)
+    gap = pause_end - pause_begin
+    assert gap > 0.9  # 0.9 for leeway
