@@ -101,7 +101,8 @@ def test_partial_buffered_output():
         stdout=pi.side_in,
     )
     proc.start()
+    pi.side_in.close()  # Remove our reference on this end of the pipe, now that the child has one
     proc.terminate()
     proc.join()
-    data = pi.side_out.read(4)
+    data = pi.side_out.read()
     assert data == b'foo\n'
