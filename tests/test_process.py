@@ -120,4 +120,4 @@ def test_error_output():
     pi.side_in.close()  # Remove our reference on this end of the pipe, now that the child has one
     proc.join()
     data = pi.side_out.read()
-    assert data in (b'foo\n', b'foo\r\n')
+    assert data in (b'bar\n', b'bar\r\n')
