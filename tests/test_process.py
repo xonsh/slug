@@ -94,7 +94,8 @@ def test_partial_output():
     assert data in (b'foo\n', b'foo\r\n')
 
 
-def test_partial_buffered_output():
+def test_terminated_output():
+    # NOTE: POSIX clears the pipe when a process has non-zero return
     pi = Pipe()
     proc = Process(
         runpy(r'print("foo", flush=True); input(); print("bar", flush=True)'),
@@ -103,6 +104,20 @@ def test_partial_buffered_output():
     proc.start()
     pi.side_in.close()  # Remove our reference on this end of the pipe, now that the child has one
     proc.terminate()
+    proc.join()
+    data = pi.side_out.read()
+    assert data == b''
+
+
+def test_error_output():
+    # NOTE: POSIX clears the pipe when a process has non-zero return
+    pi = Pipe()
+    proc = Process(
+        runpy(r'import sys; print("bar", flush=True); sys.exit(42)'),
+        stdout=pi.side_in,
+    )
+    proc.start()
+    pi.side_in.close()  # Remove our reference on this end of the pipe, now that the child has one
     proc.join()
     data = pi.side_out.read()
     assert data in (b'foo\n', b'foo\r\n')
