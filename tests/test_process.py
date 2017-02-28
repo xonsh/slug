@@ -37,13 +37,13 @@ def test_terminate_process():
 
 def test_pipe_output():
     pi = Pipe()
-    proc = Process(runpy(r'print("hello", end="\n")'), stdout=pi.side_in)
+    proc = Process(runpy(r'print("hello")'), stdout=pi.side_in)
     proc.start()
     data = pi.side_out.readline()
     # Pipe is closed but process might still be live
     proc.join()  # Commenting this out causes data to be None?
     assert proc.return_code == 0
-    assert data == b'hello\n'
+    assert data in (b'hello\n', b'hello\r\n')
 
 
 def test_pipe_input():
@@ -84,20 +84,20 @@ def test_inner_pipe_reversed_order():
 def test_partial_output():
     pi = Pipe()
     proc = Process(
-        runpy(r'print("foo", end="\n", flush=True); input(); print("bar", end="\n", flush=True)'),
+        runpy(r'print("foo", flush=True); input(); print("bar", flush=True)'),
         stdout=pi.side_in,
     )
     proc.start()
     data = pi.side_out.readline()
     proc.terminate()
     proc.join()
-    assert data == b'foo\n'
+    assert data in (b'foo\n', b'foo\r\n')
 
 
 def test_partial_buffered_output():
     pi = Pipe()
     proc = Process(
-        runpy(r'print("foo", end="\n", flush=True); input(); print("bar", end="\n", flush=True)'),
+        runpy(r'print("foo", flush=True); input(); print("bar", flush=True)'),
         stdout=pi.side_in,
     )
     proc.start()
@@ -105,4 +105,4 @@ def test_partial_buffered_output():
     proc.terminate()
     proc.join()
     data = pi.side_out.read()
-    assert data == b'foo\n'
+    assert data in (b'foo\n', b'foo\r\n')
