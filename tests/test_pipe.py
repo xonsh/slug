@@ -78,3 +78,14 @@ def test_chunk_eof():
     p.side_in.close()
     data = p.side_out.read(5)
     assert data == b''
+
+
+def test_large_chunk():
+    p = Pipe()
+    p.side_in.write(b"Hello")
+    p.side_in.close()
+
+    data = p.side_out.read(4000)
+    assert data == b'Hello'
+    data = p.side_out.read(4000)
+    assert data == b''
