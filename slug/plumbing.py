@@ -18,6 +18,9 @@ class Tee:
      * No guarentees about which thread, greenlet, coroutine, etc is current
      * If it blocks, the connection will block
      * If it throws an exception, the connection may die
+
+    For these reasons, it is highly recommended that the data be immediately
+    handed to a pipe, queue, buffer, etc.
     """
     def __init__(self, side_in, side_out, callback):
         NotImplemented
