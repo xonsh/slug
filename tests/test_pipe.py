@@ -89,3 +89,14 @@ def test_large_chunk():
     assert data == b'Hello'
     data = p.side_out.read(4000)
     assert data == b''
+
+
+def test_large_chunk_interactivish():
+    p = Pipe()
+    p.side_in.write(b"Hello")
+
+    data = p.side_out.read(4000)
+    assert data == b'Hello'
+    p.side_in.close()
+    data = p.side_out.read(4000)
+    assert data == b''
