@@ -17,6 +17,6 @@ install:
 - "%PYTHON%\\python setup.py install"
 build: off
 test_script:
-- "%PYTHON%\\Scripts\\py.test --flake8 --timeout=10 --cov=./slug --cov-report=xml:coverage.xml"
+- "%PYTHON%\\Scripts\\py.test --flake8 --timeout=10 --cov --cov-report=xml:coverage.xml"
 after_test:
   - "%PYTHON%\\Scripts\\codecov -X gcov"
