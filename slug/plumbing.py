@@ -1,5 +1,5 @@
 """
-Several implementations of "plumbing" to help connect various bits and basic 
+Several implementations of "plumbing" to help connect various bits and basic
 data flows.
 """
 import threading
@@ -22,13 +22,13 @@ def read_chunks(fo, *, chunksize=4096):
 
 class Tee:
     """
-    Forwards from one file-like to another, but a callable is passed all data 
+    Forwards from one file-like to another, but a callable is passed all data
     that flows over the connection.
 
     The callable is called many times with chunks of the data, until EOF. Each
     chunk is a bytes. At EOF, the eof callback is called.
 
-    NOTE: There are several properties about how the callback is called, and 
+    NOTE: There are several properties about how the callback is called, and
     care should be taken. In particular:
      * No guarentees about which thread, greenlet, coroutine, etc is current
      * If it blocks, the connection will block
@@ -77,7 +77,6 @@ class Valve:
         Enable flow
         """
         self.gate.set()
-
 
     def turn_off(self):
         """
