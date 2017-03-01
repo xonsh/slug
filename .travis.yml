@@ -14,11 +14,21 @@ matrix:
         # - os: osx
         #   python: 3.6
         - os: osx
+          language: generic
+        - os: osx
           python: "nightly"
     allow_failures:
         - python: "nightly"
 
 install:
+  - |
+    if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+
+        brew update;
+        brew install python3;
+        python3 -m venv venv;
+        source venv/bin/activate;
+    fi
   - pip install -r requirements-tests.txt
   - python setup.py install
 
