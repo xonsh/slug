@@ -1,4 +1,3 @@
-from .utils import *  # noqa
 from .base import *  # noqa
 
 import os
@@ -14,3 +13,5 @@ elif os.name == 'posix':  # Posix
         pass
     elif sys.platform == 'cygwin':
         pass
+
+from .plumbing import *  # noqa
