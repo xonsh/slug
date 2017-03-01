@@ -1,3 +1,8 @@
+"""
+Versions of the base functionality optimized for by-the-spec POSIX.
+
+Linux/Mac/BSD-specific code should live elsewhere.
+"""
 import signal
 from . import base
 
