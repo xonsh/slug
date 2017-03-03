@@ -3,7 +3,7 @@ Several implementations of "plumbing" to help connect various bits and basic
 data flows.
 """
 import threading
-__all__ = 'Tee', 'Valve'
+__all__ = ('Tee', 'Valve')
 
 
 def read_chunks(fo, *, chunksize=4096):

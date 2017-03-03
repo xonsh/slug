@@ -6,6 +6,8 @@ Linux/Mac/BSD-specific code should live elsewhere.
 import signal
 from . import base
 
+__all__ = ('Process',)
+
 
 class Process(base.Process):
     def pause(self):

@@ -3,7 +3,7 @@ Base, non-system specific abstract implementations.
 """
 import os
 import subprocess
-__all__ = ('Process', 'Pipe', 'ProcessGroup')
+__all__ = ('Process', 'ProcessGroup', 'Pipe', 'PseudoTerminal')
 
 
 class Process:

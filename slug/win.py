@@ -6,6 +6,8 @@ The 9x kernel is just unsupported.
 import ctypes
 from . import base
 
+__all__ = ('Process',)
+
 
 class Process(base.Process):
     # https://stackoverflow.com/questions/11010165/how-to-suspend-resume-a-process-in-windows
