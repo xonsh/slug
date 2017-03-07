@@ -1,4 +1,6 @@
 import io
+import threading
+import time
 from slug import Tee, Valve, Pipe
 
 
@@ -36,3 +38,38 @@ def test_valve_through():
 
     roundtrip = pout.side_out.read()
     assert roundtrip == b'spameggs'
+
+
+def test_valve_stop():
+    pin = Pipe()
+    pout = Pipe()
+    v = Valve(  # noqa
+        side_in=pin.side_out,
+        side_out=pout.side_in,
+    )
+
+    pin.side_in.write(b'spameggs')
+    pin.side_in.close()
+
+    buf = None
+    timediff = None
+
+    def clockread():
+        nonlocal buf, timediff
+        s = time.perf_counter()
+        buf = pout.side_out.read()
+        e = time.perf_counter()
+        timediff = e - s
+
+    v.turn_off()
+    print(vars(v))
+    t = threading.Thread(target=clockread(), daemon=True)
+    print(t)
+    t.start()
+    print(t)
+    time.sleep(1.0)
+    v.turn_on()
+    t.join()
+
+    assert buf == b'spameggs'
+    assert timediff > 1.0
