@@ -63,7 +63,7 @@ def test_valve_stop():
 
     v.turn_off()
     print(vars(v))
-    t = threading.Thread(target=clockread(), daemon=True)
+    t = threading.Thread(target=clockread, daemon=True)
     print(t)
     t.start()
     print(t)
