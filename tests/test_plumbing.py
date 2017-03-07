@@ -62,11 +62,8 @@ def test_valve_stop():
         timediff = e - s
 
     v.turn_off()
-    print(vars(v))
     t = threading.Thread(target=clockread, daemon=True)
-    print(t)
     t.start()
-    print(t)
     time.sleep(1.0)
     v.turn_on()
     t.join()
