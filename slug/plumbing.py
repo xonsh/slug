@@ -37,11 +37,12 @@ class Tee:
     For these reasons, it is highly recommended that the data be immediately
     handed to a pipe, queue, buffer, etc.
     """
-    def __init__(self, side_in, side_out, callback, eof=None):
+    def __init__(self, side_in, side_out, callback, eof=None, *, keepopen=False):
         self.side_in = side_in
         self.side_out = side_out
         self.callback = callback
         self.eof = eof
+        self.keepopen = keepopen
         self.thread = threading.Thread(target=self._thread, daemon=True)
         self.thread.start()
 
@@ -53,6 +54,8 @@ class Tee:
         finally:
             if self.eof is not None:
                 self.eof()
+            if not self.keepopen:
+                self.side_out.close()
 
 
 class Valve:
@@ -60,10 +63,11 @@ class Valve:
     Forwards from one file-like to another, but this flow may be paused and
     resumed.
     """
-    def __init__(self, side_in, side_out):
+    def __init__(self, side_in, side_out, *, keepopen=False):
         self.side_in = side_in
         self.side_out = side_out
         self.gate = threading.Event()
+        self.keepopen = keepopen
         self.thread = threading.Thread(target=self._thread, daemon=True)
         self.thread.start()
 
@@ -71,6 +75,8 @@ class Valve:
         for chunk in read_chunks(self.side_in):
             self.side_out.write(chunk)
             self.gate.wait()
+        if not self.keepopen:
+            self.side_out.close()
 
     def turn_on(self):
         """
