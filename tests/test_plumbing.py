@@ -16,12 +16,13 @@ def test_tee_basics():
     pin.side_in.write(b'foobar')
     pin.side_in.close()
 
-    assert buf.getvalue() == b'foobar'
     roundtrip = pout.side_out.read()
     assert roundtrip == b'foobar'
+    # This is only guarenteed _after_ it appears on the pipe
+    assert buf.getvalue() == b'foobar'
 
 
-def test_valve_basics():
+def test_valve_through():
     pin = Pipe()
     pout = Pipe()
     v = Valve(  # noqa
@@ -32,8 +33,6 @@ def test_valve_basics():
 
     pin.side_in.write(b'spameggs')
     pin.side_in.close()
-
-    # FIXME: Actually test turning on and off
 
     roundtrip = pout.side_out.read()
     assert roundtrip == b'spameggs'
