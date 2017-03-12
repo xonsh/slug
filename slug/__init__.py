@@ -13,5 +13,3 @@ elif os.name == 'posix':  # Posix
         pass
     elif sys.platform == 'cygwin':
         pass
-
-from .plumbing import *  # noqa

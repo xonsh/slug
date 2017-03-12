@@ -1,27 +1,7 @@
-import io
+import pytest
 import threading
 import time
-from slug import Tee, Valve, Pipe
-
-
-def test_tee_basics():
-    pin = Pipe()
-    pout = Pipe()
-    buf = io.BytesIO()
-    t = Tee(  # noqa
-        side_in=pin.side_out,
-        side_out=pout.side_in,
-        callback=buf.write,
-        # Closing a BytesIO disables getting the value
-        # eof=buf.close,
-    )
-    pin.side_in.write(b'foobar')
-    pin.side_in.close()
-
-    roundtrip = pout.side_out.read()
-    assert roundtrip == b'foobar'
-    # This is only guarenteed _after_ it appears on the pipe
-    assert buf.getvalue() == b'foobar'
+from slug import Valve, Pipe
 
 
 def test_valve_through():
@@ -70,3 +50,24 @@ def test_valve_stop():
 
     assert buf == b'spameggs'
     assert timediff > 1.0
+
+
+@pytest.mark.xfail  # Currently fails due not interrupting .read()
+def test_valve_stop_midway():
+    pin = Pipe()
+    pout = Pipe()
+    v = Valve(  # noqa
+        side_in=pin.side_out,
+        side_out=pout.side_in,
+    )
+
+    v.turn_on()
+    pin.side_in.write(b'spam')
+    time.sleep(1.0)
+    v.turn_off()
+    pin.side_in.write(b'eggs')
+    time.sleep(1.0)
+
+    buf = pout.side_out.read(4000)
+
+    assert buf == b'spam'
