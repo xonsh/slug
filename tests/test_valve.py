@@ -52,7 +52,10 @@ def test_valve_stop():
     assert timediff > 0.99
 
 
-@pytest.mark.xfail  # Currently fails due not interrupting .read()
+# Broken on windows, see https://github.com/xonsh/slug/issues/7
+@pytest.mark.linux
+@pytest.mark.darwin
+@pytest.mark.cygwin
 def test_valve_stop_midway():
     pin = Pipe()
     pout = Pipe()
