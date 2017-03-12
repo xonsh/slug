@@ -49,7 +49,7 @@ def test_valve_stop():
     t.join()
 
     assert buf == b'spameggs'
-    assert timediff > 0.99
+    assert timediff > 0.9
 
 
 # Broken on windows, see https://github.com/xonsh/slug/issues/7
