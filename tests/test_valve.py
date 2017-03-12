@@ -49,7 +49,7 @@ def test_valve_stop():
     t.join()
 
     assert buf == b'spameggs'
-    assert timediff > 1.0
+    assert timediff > 0.99
 
 
 @pytest.mark.xfail  # Currently fails due not interrupting .read()
