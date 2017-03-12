@@ -5,6 +5,7 @@ The 9x kernel is just unsupported.
 """
 import ctypes
 from . import base
+from .utils import thread_async_raise
 
 __all__ = ('Process', 'Valve')
 
@@ -35,10 +36,20 @@ class Process(base.Process):
             ctypes.windll.kernel32.DebugActiveProcessStop(self.pid)
 
 
+class _InterruptRead(BaseException):
+    """
+    Used internally.
+    """
+
 class Valve(base.Valve):
     def _thread(self):
         while True:
-            chunk = self.side_in.read(self.CHUNKSIZE)
+            try:
+                chunk = self.side_in.read(self.CHUNKSIZE)
+            except _InterruptRead:
+                self.gate.wait()
+                continue
+
             if chunk == b'':
                 break
             else:
@@ -52,4 +63,5 @@ class Valve(base.Valve):
         Disable flow
         """
         self.gate.clear()
+        thread_async_raise(self.thread, _InterruptRead)
         ctypes.windll.kernel32.CancelSynchronousIo(ctypes.wintypes.HANDLE(self.thread.ident))
