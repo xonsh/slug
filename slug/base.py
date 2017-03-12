@@ -186,20 +186,6 @@ class PseudoTerminal:
         self.side_master, self.side_slave = NotImplemented, NotImplemented
 
 
-def read_chunks(fo, *, chunksize=4096):
-    """
-    The magic of the plumbing. Generates chunks from the file object with timely
-    reading while still maintaining performance.
-    """
-    # Initial testing shows that we should just do the naive thing
-    while True:
-        chunk = fo.read(chunksize)
-        if chunk == b'':
-            break
-        else:
-            yield chunk
-
-
 class Tee:
     """
     Forwards from one file-like to another, but a callable is passed all data
@@ -217,6 +203,8 @@ class Tee:
     For these reasons, it is highly recommended that the data be immediately
     handed to a pipe, queue, buffer, etc.
     """
+    CHUNKSIZE = 4096
+
     def __init__(self, side_in, side_out, callback, eof=None, *, keepopen=False):
         self.side_in = side_in
         self.side_out = side_out
@@ -228,9 +216,13 @@ class Tee:
 
     def _thread(self):
         try:
-            for chunk in read_chunks(self.side_in):
-                self.callback(chunk)
-                self.side_out.write(chunk)
+            while True:
+                chunk = self.side_in.read(self.CHUNKSIZE)
+                if chunk == b'':
+                    break
+                else:
+                    self.callback(chunk)
+                    self.side_out.write(chunk)
         finally:
             if self.eof is not None:
                 self.eof()
@@ -243,6 +235,8 @@ class Valve:
     Forwards from one file-like to another, but this flow may be paused and
     resumed.
     """
+    CHUNKSIZE = 4096
+
     def __init__(self, side_in, side_out, *, keepopen=False):
         self.side_in = side_in
         self.side_out = side_out
@@ -252,9 +246,13 @@ class Valve:
         self.thread.start()
 
     def _thread(self):
-        for chunk in read_chunks(self.side_in):
-            self.side_out.write(chunk)
-            self.gate.wait()
+        while True:
+            chunk = self.side_in.read(self.CHUNKSIZE)
+            if chunk == b'':
+                break
+            else:
+                self.side_out.write(chunk)
+                self.gate.wait()
         if not self.keepopen:
             self.side_out.close()
 
