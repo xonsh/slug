@@ -15,8 +15,6 @@ matrix:
         #   python: 3.6
         - os: osx
           language: generic
-        - os: osx
-          python: "nightly"
     allow_failures:
         - python: "nightly"
 
