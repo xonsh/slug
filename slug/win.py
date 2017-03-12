@@ -6,7 +6,7 @@ The 9x kernel is just unsupported.
 import ctypes
 from . import base
 
-__all__ = ('Process',)
+__all__ = ('Process', 'Valve')
 
 
 class Process(base.Process):
@@ -33,3 +33,23 @@ class Process(base.Process):
         """
         if self.pid is not None:
             ctypes.windll.kernel32.DebugActiveProcessStop(self.pid)
+
+
+class Valve:
+    def _thread(self):
+        while True:
+            chunk = self.side_in.read(self.CHUNKSIZE)
+            if chunk == b'':
+                break
+            else:
+                self.side_out.write(chunk)
+                self.gate.wait()
+        if not self.keepopen:
+            self.side_out.close()
+
+    def turn_off(self):
+        """
+        Disable flow
+        """
+        self.gate.clear()
+        ctypes.windll.kernel32.CancelSynchronousIo(ctypes.wintypes.HANDLE(self.thread.ident))
