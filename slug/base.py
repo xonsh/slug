@@ -235,6 +235,7 @@ class Valve:
     Forwards from one file-like to another, but this flow may be paused and
     resumed.
     """
+    # This implementation is broken. It will read an extra block.
     CHUNKSIZE = 4096
 
     def __init__(self, side_in, side_out, *, keepopen=False):
@@ -267,3 +268,42 @@ class Valve:
         Disable flow
         """
         self.gate.clear()
+
+
+class QuickConnect:
+    """
+    Forwards one file-like to another, but allows the files involved to be
+    swapped arbitrarily at any time.
+
+    NOTE: Unlike other plumbing types, this defaults to NOT closing the
+    receiving file. This means that a ``Tee`` should be used before a
+    ``QuickConnect`` in order to detect EOF and close any files involved.
+
+    Attributes:
+
+    * ``side_in``: The file the QuickConnect reads from
+    * ``side_out``: The file the QuickConnect writes to
+
+    The attributes may be written to at any time and the QuickConnect will
+    reconfigure anything internal as quickly as possible.
+    """
+
+    # This implementation is broken. It will read an extra block.
+    CHUNKSIZE = 4096
+
+    def __init__(self, side_in, side_out, *, keepopen=True):
+        self.side_in = side_in
+        self.side_out = side_out
+        self.keepopen = keepopen
+        self.thread = threading.Thread(target=self._thread, daemon=True)
+        self.thread.start()
+
+    def _thread(self):
+        while True:
+            chunk = self.side_in.read(self.CHUNKSIZE)
+            if chunk == b'':
+                break
+            else:
+                self.side_out.write(chunk)
+        if not self.keepopen:
+            self.side_out.close()
