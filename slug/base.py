@@ -4,7 +4,12 @@ Base, non-system specific abstract implementations.
 import os
 import subprocess
 import threading
-__all__ = ('Process', 'ProcessGroup', 'Pipe', 'PseudoTerminal', 'Tee', 'Valve')
+__all__ = (
+    # Base primitives
+    'Process', 'ProcessGroup', 'Pipe', 'PseudoTerminal',
+    # Plumbing
+    'Tee', 'Valve', 'QuickConnect',
+)
 
 
 class Process:

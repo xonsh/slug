@@ -7,7 +7,7 @@ from slug import Valve, Pipe
 def test_valve_through():
     pin = Pipe()
     pout = Pipe()
-    v = Valve(  # noqa
+    v = Valve(
         side_in=pin.side_out,
         side_out=pout.side_in,
     )
@@ -23,7 +23,7 @@ def test_valve_through():
 def test_valve_stop():
     pin = Pipe()
     pout = Pipe()
-    v = Valve(  # noqa
+    v = Valve(
         side_in=pin.side_out,
         side_out=pout.side_in,
     )
@@ -59,7 +59,7 @@ def test_valve_stop():
 def test_valve_stop_midway():
     pin = Pipe()
     pout = Pipe()
-    v = Valve(  # noqa
+    v = Valve(
         side_in=pin.side_out,
         side_out=pout.side_in,
     )
