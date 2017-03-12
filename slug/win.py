@@ -35,7 +35,7 @@ class Process(base.Process):
             ctypes.windll.kernel32.DebugActiveProcessStop(self.pid)
 
 
-class Valve:
+class Valve(base.Valve):
     def _thread(self):
         while True:
             chunk = self.side_in.read(self.CHUNKSIZE)
