@@ -29,9 +29,9 @@ Example
 .. code:: python
 
     with ProcessGroup() as pg:
-      pipe = mkpipe()
-      spam = pg.process(['spam'], stdin=StdIn(), stdout=pipe.side_in, stderr=StdErr(), environ=...)
-      eggs = pg.process(['eggs'], stdin=pipe.side_out, stdout=StdOut(), stderr=StdErr(), environ=...)
+      pipe = Pipe()
+      spam = pg.process(['spam'], stdout=pipe.side_in)
+      eggs = pg.process(['eggs'], stdin=pipe.side_out)
     pg.start()
     pg.join()
 
