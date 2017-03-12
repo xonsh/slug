@@ -1,6 +1,7 @@
 import pytest
 import threading
 import time
+import slug
 from slug import Valve, Pipe
 
 
@@ -53,9 +54,8 @@ def test_valve_stop():
 
 
 # Broken on windows, see https://github.com/xonsh/slug/issues/7
-@pytest.mark.linux
-@pytest.mark.darwin
-@pytest.mark.cygwin
+@pytest.mark.skipif(slug.Valve is slug.base.Valve,
+                    reason="Base Valve is broken this way")
 def test_valve_stop_midway():
     pin = Pipe()
     pout = Pipe()

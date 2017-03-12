@@ -1,5 +1,6 @@
 import pytest
 import time
+import slug
 from slug import QuickConnect, Pipe
 
 
@@ -19,8 +20,9 @@ def test_through():
     assert roundtrip == b'spameggs'
 
 
-# Until we implement Posix and #7
-@pytest.mark.xfail
+# Broken on windows, see https://github.com/xonsh/slug/issues/7
+@pytest.mark.skipif(slug.QuickConnect is slug.base.QuickConnect,
+                    reason="Base QuickConnect is broken this way")
 def test_change_input():
     p1 = Pipe()
     p2 = Pipe()
