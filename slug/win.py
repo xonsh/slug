@@ -33,3 +33,49 @@ class Process(base.Process):
         """
         if self.pid is not None:
             ctypes.windll.kernel32.DebugActiveProcessStop(self.pid)
+
+
+def _peek_named_pipe_return(value):
+    if not value:
+        ctypes.WinError()
+
+PeekNamedPipe = ctypes.windll.kernel32.PeekNamedPipe
+PeekNamedPipe.restype = _peek_named_pipe_return
+
+
+def _peek_pipe(pipe):
+    lpTotalBytesAvail = ctypes.wintypes.DWORD(0)
+    PeekNamedPipe(
+        ctypes.wintypes.HANDLE(pipe.fileno()),
+        None,
+        ctypes.wintypes.DWORD(0),
+        None,
+        ctypes.byref(lpTotalBytesAvail),
+        None,
+    )
+    return lpTotalBytesAvail
+
+
+class Valve:
+    """
+    Forwards from one file-like to another, but this flow may be paused and
+    resumed.
+    """
+    def _thread(self):
+        while True:
+            avail = _peek_pipe(self.side_in)
+
+            # This feels like there's a race condition in here, but I think the
+            # window is small enough we can call it "slight asyncronousity".
+            if not self.gate.is_set():
+                self.gate.wait()
+                continue
+
+            chunk = self.side_in.read(avail)
+            if chunk == b'':
+                break
+            else:
+                self.side_out.write(chunk)
+                self.gate.wait()
+        if not self.keepopen:
+            self.side_out.close()
