@@ -4,6 +4,7 @@ Versions of the base functionality optimized for the NT kernel.
 The 9x kernel is just unsupported.
 """
 import ctypes
+import time
 from . import base
 
 __all__ = ('Process', 'Valve')
@@ -75,6 +76,7 @@ class Valve(base.Valve):
 
             if avail == 0:
                 # Do we want to sleep?
+                time.sleep(0.1)
                 continue
 
             chunk = self.side_in.read(avail)
