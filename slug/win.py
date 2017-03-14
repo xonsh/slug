@@ -66,7 +66,14 @@ class Valve(base.Valve):
     """
     def _thread(self):
         while True:
-            avail = _peek_pipe(self.side_in)
+            try:
+                avail = _peek_pipe(self.side_in)
+            except OSError as exc:
+                if exc.winerror == 6:  # ERROR_INVALID_HANDLE
+                    # Assume EOF?
+                    pass  # Have it read out remaining data
+                else:
+                    raise
 
             # This feels like there's a race condition in here, but I think the
             # window is small enough we can call it "slight asyncronousity".
@@ -84,6 +91,5 @@ class Valve(base.Valve):
                 break
             else:
                 self.side_out.write(chunk)
-                self.gate.wait()
         if not self.keepopen:
             self.side_out.close()
