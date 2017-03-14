@@ -6,7 +6,7 @@ The 9x kernel is just unsupported.
 import ctypes
 from . import base
 
-__all__ = ('Process',)
+__all__ = ('Process', 'Valve')
 
 
 class Process(base.Process):
