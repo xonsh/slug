@@ -71,6 +71,10 @@ class Valve(base.Valve):
                 self.gate.wait()
                 continue
 
+            if avail == 0:
+                # Do we want to sleep?
+                continue
+
             chunk = self.side_in.read(avail)
             if chunk == b'':
                 break
