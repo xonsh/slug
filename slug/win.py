@@ -70,8 +70,9 @@ class Valve(base.Valve):
                 avail = _peek_pipe(self.side_in)
             except OSError as exc:
                 if exc.winerror == 6:  # ERROR_INVALID_HANDLE
-                    # Assume EOF?
-                    pass  # Have it read out remaining data
+                    # Assume EOF
+                    # Have it read out remaining data
+                    avail = 4096
                 else:
                     raise
 
