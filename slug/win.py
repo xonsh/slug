@@ -53,7 +53,7 @@ def _peek_pipe(pipe):
         ctypes.byref(lpTotalBytesAvail),
         None,
     )
-    return lpTotalBytesAvail
+    return int(lpTotalBytesAvail)
 
 
 class Valve(base.Valve):
