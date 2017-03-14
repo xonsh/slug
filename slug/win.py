@@ -38,6 +38,7 @@ class Process(base.Process):
 def _peek_named_pipe_return(value):
     if not value:
         ctypes.WinError()
+    return value
 
 PeekNamedPipe = ctypes.windll.kernel32.PeekNamedPipe
 PeekNamedPipe.restype = _peek_named_pipe_return
@@ -45,7 +46,7 @@ PeekNamedPipe.restype = _peek_named_pipe_return
 
 def _peek_pipe(pipe):
     lpTotalBytesAvail = ctypes.wintypes.DWORD(0)
-    PeekNamedPipe(
+    success = PeekNamedPipe(
         ctypes.wintypes.HANDLE(pipe.fileno()),
         None,
         ctypes.wintypes.DWORD(0),
@@ -53,6 +54,7 @@ def _peek_pipe(pipe):
         ctypes.byref(lpTotalBytesAvail),
         None,
     )
+    print(success)
     return lpTotalBytesAvail.value
 
 
