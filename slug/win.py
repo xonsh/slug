@@ -39,7 +39,7 @@ class Process(base.Process):
 def _peek_named_pipe_return(value):
     print("PeekNamedPipe return", repr(value))
     if value == 0:
-        ctypes.WinError()
+        raise ctypes.WinError()
     return value
 
 PeekNamedPipe = ctypes.windll.kernel32.PeekNamedPipe
