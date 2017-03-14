@@ -56,7 +56,7 @@ def _peek_pipe(pipe):
     return lpTotalBytesAvail
 
 
-class Valve:
+class Valve(base.Valve):
     """
     Forwards from one file-like to another, but this flow may be paused and
     resumed.
