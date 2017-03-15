@@ -224,6 +224,13 @@ class ProcessGroup(collections.abc.Collection):
         for proc in self:
             proc.unpause()
 
+    def join(self):
+        """
+        Wait for all the processes to finish.
+        """
+        for proc in self:
+            proc.join()
+
 
 class Pipe:
     """
