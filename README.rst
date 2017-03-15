@@ -30,8 +30,8 @@ Example
 
     with ProcessGroup() as pg:
       pipe = Pipe()
-      spam = pg.process(['spam'], stdout=pipe.side_in)
-      eggs = pg.process(['eggs'], stdin=pipe.side_out)
+      spam = pg.add(Process(['spam'], stdout=pipe.side_in))
+      eggs = pg.add(Process(['eggs'], stdin=pipe.side_out))
     pg.start()
     pg.join()
 

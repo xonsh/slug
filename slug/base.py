@@ -4,6 +4,8 @@ Base, non-system specific abstract implementations.
 import os
 import subprocess
 import threading
+import weakref
+import collections.abc
 __all__ = (
     # Base primitives
     'Process', 'ProcessGroup', 'Pipe', 'PseudoTerminal',
@@ -120,53 +122,107 @@ class Process:
             self._proc.wait()
 
 
-class ProcessGroup:
+class ProcessGroup(collections.abc.Collection):
+    """
+    A collection of processes that can be controlled as a group.
+
+    The process group is inherited. The descendent processes are also part of
+    the group.
+
+    A process may only be part of one group. If a process is added to a new
+    group, it is removed from the old group. Its children may or may not go with
+    it.
+    """
+    def __init__(self):
+        self._procs = list()
+
     def __enter__(self):
         return self
 
     def __exit__(self, t, exc, b):
-        if exc is None:
-            # XXX: Do we want to automatically start the group?
-            NotImplemented
+        # Doesn't actually do anything, just lets users set process group construction into a block
+        pass
 
-    def Process(self, *pargs, **kwargs):
-        NotImplemented
-        if self.started:
-            # Group already started, bring process back up to speed
-            NotImplemented
+    def __iter__(self):
+        yield from self._procs
+
+    def add(self, proc):
+        """
+        Add a process to the process group.
+        """
+        if hasattr(proc, '_process_group'):
+            pg = proc._process_group()
+            if pg is not None:
+                pg.remove(proc)
+        proc._process_group = weakref.ref(self)
+        self._procs.append(proc)
+
+    def remove(self, proc):
+        """
+        Remove a process from the process group.
+        """
+        self.procs.remove(proc)
+        del proc._process_group
 
     def start(self):
-        NotImplemented
+        for proc in self:
+            proc.start()
 
-    @property
-    def started(self):
-        """
-        Has the process groups started?
-        """
-        NotImplemented
+    INIT = "init"
+    RUNNING = "running"
+    FINISHED = "finished"
 
     @property
     def status(self):
         """
         The status of the process group, one of:
 
-        * ...: The process group has not yet started
-        * ...: The process group is currently running
-        * ...: All the processes have exited
+        * INIT: The process group has not yet started
+        * RUNNING: The process group is currently running
+        * FINISHED: All the processes have exited
         """
-        NotImplemented
+        if all(p.status == Process.FINISHED for p in self):
+            return ProcessGroup.FINISHED
+        elif all(p.status == Process.INIT for p in self):
+            return ProcessGroup.INIT
+        else:
+            return ProcessGroup.RUNNING
 
     def signal(self, signal):
         """
-        Send a request to the process group
+        Send a request to all the processes, by POSIX signal number
         """
-        NotImplemented
+        for proc in self:
+            proc.send_signal(signal)
+
+    def kill(self):
+        """
+        Forcibly quit all the processes
+        """
+        for proc in self:
+            proc.kill()
 
     def terminate(self):
         """
-        Forcibly quit the process group
+        Ask the all the processes to exit quickly
         """
-        NotImplemented
+        for proc in self:
+            proc.terminate()
+
+    def pause(self):
+        """
+        Pause all the processes, able to be continued later
+        """
+        for proc in self:
+            proc.pause()
+
+    def unpause(self):
+        # continue is a reserved word
+        """
+        Continue the all processes that have been paused
+        """
+        for proc in self:
+            proc.unpause()
 
 
 class Pipe:
