@@ -20,3 +20,27 @@ def test_group():
     assert p1.side_out.read().rstrip() == b'spam'
     assert p2.side_out.read().rstrip() == b'eggs'
     assert p3.side_out.read().rstrip() == b'vikings'
+
+
+def test_terminate():
+    with ProcessGroup() as pg:
+        pg.add(Process(runpy("input()")))
+        pg.add(Process(runpy("input()")))
+        pg.add(Process(runpy("input()")))
+
+    pg.start()
+    pg.terminate()
+    pg.join()
+    # Timing out is failure.
+
+
+def test_kill():
+    with ProcessGroup() as pg:
+        pg.add(Process(runpy("input()")))
+        pg.add(Process(runpy("input()")))
+        pg.add(Process(runpy("input()")))
+
+    pg.start()
+    pg.kill()
+    pg.join()
+    # Timing out is failure.
