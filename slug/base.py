@@ -122,7 +122,7 @@ class Process:
             self._proc.wait()
 
 
-class ProcessGroup(collections.abc.Collection):
+class ProcessGroup(collections.abc.Sized, collections.abc.Iterable, collections.abc.Container):
     """
     A collection of processes that can be controlled as a group.
 
@@ -145,6 +145,12 @@ class ProcessGroup(collections.abc.Collection):
 
     def __iter__(self):
         yield from self._procs
+
+    def __len__(self):
+        return len(self._procs)
+
+    def __contains__(self, item):
+        return item in self._procs
 
     def add(self, proc):
         """
