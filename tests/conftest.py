@@ -15,3 +15,7 @@ def pytest_runtest_setup(item):
                 pytest.skip("cannot run on platform %s" % (plat))
 
 # End blatent stealing
+
+
+def runpy(code):
+    return [sys.executable, '-c', code]

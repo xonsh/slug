@@ -1,9 +1,5 @@
-import sys
+from conftest import runpy
 from slug import Process, Pipe
-
-
-def runpy(code):
-    return [sys.executable, '-c', code]
 
 
 def test_successful_command():
