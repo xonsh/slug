@@ -9,6 +9,41 @@ from . import base
 __all__ = ('Process',)
 
 
+# {{{ win32 API calls
+
+def _falsey_errcheck(result, func, arguments):
+    if not result:
+        raise ctypes.WinError()
+    return arguments
+
+class SECURITY_ATTRIBUTES(ctypes.Structure):
+    _fields_ = [("Length", ctypes.wintypes.DWORD),
+                ("SecDescriptor", ctypes.wintypes.LPVOID),
+                ("InheritHandle", ctypes.wintypes.BOOL)]
+
+CreateJobObject = ctypes.windll.kernel32.CreateJobObjectW
+CreateJobObject.argtypes = (ctypes.POINTER(SECURITY_ATTRIBUTES), ctypes.wintypes.LPCWSTR)
+CreateJobObject.restype = ctypes.wintypes.HANDLE
+CreateJobObject.errcheck = _falsey_errcheck
+
+DebugActiveProcess = ctypes.windll.kernel32.DebugActiveProcess
+DebugActiveProcess.argtypes = (ctypes.wintypes.DWORD,)
+DebugActiveProcess.restype = ctypes.wintypes.BOOL
+DebugActiveProcess.errcheck = _falsey_errcheck
+
+DebugSetProcessKillOnExit = ctypes.windll.kernel32.DebugSetProcessKillOnExit
+DebugSetProcessKillOnExit.argtypes = (ctypes.wintypes.BOOL,)
+DebugSetProcessKillOnExit.restype = ctypes.wintypes.BOOL
+DebugSetProcessKillOnExit.errcheck = _falsey_errcheck
+
+DebugActiveProcessStop = ctypes.windll.kernel32.DebugActiveProcessStop
+DebugActiveProcessStop.argtypes = (ctypes.wintypes.DWORD,)
+DebugActiveProcessStop.restype = ctypes.wintypes.BOOL
+DebugActiveProcessStop.errcheck = _falsey_errcheck
+
+# }}}
+
+
 class Process(base.Process):
     # https://stackoverflow.com/questions/11010165/how-to-suspend-resume-a-process-in-windows
     # NtSuspendProcess would be better, but
@@ -23,13 +58,14 @@ class Process(base.Process):
         Pause the process, able to be continued later
         """
         if self.pid is not None:
-            ctypes.windll.kernel32.DebugActiveProcess(self.pid)
+            DebugActiveProcess(self.pid)
             # When we exit, the process will resume. The alternative is for it to die.
-            ctypes.windll.kernel32.DebugSetProcessKillOnExit(False)
+            DebugSetProcessKillOnExit(False)
 
     def unpause(self):
         """
         Continue the process after it's been paused
         """
         if self.pid is not None:
-            ctypes.windll.kernel32.DebugActiveProcessStop(self.pid)
+            DebugActiveProcessStop(self.pid)
+
