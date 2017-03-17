@@ -6,12 +6,36 @@ Linux/Mac/BSD-specific code should live elsewhere.
 import signal
 import selectors
 import threading
+import os
+import subprocess
 from . import base
 
-__all__ = ('Process', 'Valve', 'QuickConnect')
+__all__ = ('Process', 'ProcessGroup', 'Valve', 'QuickConnect')
 
 
 class Process(base.Process):
+    def start(self):
+        """
+        Start the process.
+        """
+        preexec = None
+        if hasattr(self, '_process_group_leader'):
+            # This almost certainly needs some kind of syncronization...
+            if self._process_group_leader is ...:
+                preexec = os.setpgrp
+            else:
+                pgid = self._process_group_leader.pid
+                preexec = lambda: os.setpgid(0, pgid)
+        self._proc = subprocess.Popen(
+            # What to execute
+            self.cmd,
+            preexec_fn=preexec,
+            # What IO it has
+            stdin=self.stdin, stdout=self.stdout, stderr=self.stderr,
+            # Environment it executes in
+            cwd=self.cwd, env=self.environ,
+        )
+
     def pause(self):
         """
         Pause the process, able to be continued later
@@ -25,6 +49,51 @@ class Process(base.Process):
         """
         self.signal(signal.SIGCONT)
 
+    @property
+    def pgid(self):
+        """
+        Process group ID, or None if it hasn't started yet.
+
+        POSIX only.
+        """
+        if self.pid is not None:
+            return os.getpgid(self.pid)
+
+    @property
+    def sid(self):
+        """
+        Session ID, or None if it hasn't started yet.
+
+        POSIX only.
+        """
+        return os.getsid(self.pid)
+
+
+class ProcessGroup(base.ProcessGroup):
+    pgid = None
+
+    def add(self, proc):
+        super().add(proc)
+        if self.started and proc.started:
+            os.setpgid(proc.pid, self.pgid)
+
+    def remove(self, proc):
+        if proc.started:
+            # Re-assign to ourselves
+            os.setpgid(proc.pid, os.getpgid(0))
+        super().remove(proc)
+
+    def start(self):
+        print(f'xonsh pid={os.getpid()} sid={os.getsid(0)} pgid={os.getpgid(0)}')
+        # This relies on consistent iteration order
+        procs = iter(self)
+        leader = next(procs)
+        leader._process_group_leader = ...
+        for p in procs:
+            p._process_group_leader = leader
+        super().start()
+        for p in self:
+            print(f'proc pid={p.pid} sid={p.sid} pgid={p.pgid}')
 
 class Valve(base.Valve):
     """

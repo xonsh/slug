@@ -9,9 +9,16 @@ import collections.abc
 __all__ = (
     # Base primitives
     'Process', 'ProcessGroup', 'Pipe', 'PseudoTerminal',
+    # Constants
+    'INIT', 'RUNNING', 'PAUSED', 'FINISHED',
     # Plumbing
     'Tee', 'Valve', 'QuickConnect',
 )
+
+INIT = "init"
+RUNNING = "running"
+PAUSED = "paused"
+FINISHED = "finished"
 
 
 class Process:
@@ -68,11 +75,6 @@ class Process:
         """
         return self._proc is not None
 
-    INIT = "init"
-    RUNNING = "running"
-    PAUSED = "paused"
-    FINISHED = "finished"
-
     @property
     def status(self):
         """
@@ -84,12 +86,12 @@ class Process:
         * FINISHED: The process has exited
         """
         if self._proc is None:
-            return self.INIT
+            return INIT
         elif self._proc.returncode is not None:
-            return self.FINISHED
+            return FINISHED
         else:
             # TODO: How to tell if a process is currently stopped?
-            return self.RUNNING
+            return RUNNING
 
     @property
     def pid(self):
@@ -122,6 +124,7 @@ class Process:
             self._proc.wait()
 
 
+# Py36: collections.abc.Collection
 class ProcessGroup(collections.abc.Sized, collections.abc.Iterable, collections.abc.Container):
     """
     A collection of processes that can be controlled as a group.
@@ -174,10 +177,6 @@ class ProcessGroup(collections.abc.Sized, collections.abc.Iterable, collections.
         for proc in self:
             proc.start()
 
-    INIT = "init"
-    RUNNING = "running"
-    FINISHED = "finished"
-
     @property
     def status(self):
         """
@@ -187,12 +186,16 @@ class ProcessGroup(collections.abc.Sized, collections.abc.Iterable, collections.
         * RUNNING: The process group is currently running
         * FINISHED: All the processes have exited
         """
-        if all(p.status == Process.FINISHED for p in self):
-            return ProcessGroup.FINISHED
-        elif all(p.status == Process.INIT for p in self):
-            return ProcessGroup.INIT
+        if all(p.status == FINISHED for p in self):
+            return FINISHED
+        elif all(p.status == INIT for p in self):
+            return INIT
         else:
-            return ProcessGroup.RUNNING
+            return RUNNING
+
+    @property
+    def started(self):
+        return self.pgid is not None
 
     def signal(self, signal):
         """
