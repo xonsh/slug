@@ -96,6 +96,14 @@ class ProcessGroup(base.ProcessGroup):
         super().start()
         self.pgid = leader.pgid
 
+    def kill(self):
+        if self.pgid is not None:
+            os.kill(-self.pgid, signal.SIGKILL)
+
+    def terminate(self):
+        if self.pgid is not None:
+            os.kill(-self.pgid, signal.SIGTERM)
+
 
 class Valve(base.Valve):
     """
