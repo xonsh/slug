@@ -20,12 +20,15 @@ class Process(base.Process):
         """
         preexec = None
         if hasattr(self, '_process_group_leader'):
-            # This almost certainly needs some kind of syncronization...
+            # This probably needs some kind of syncronization...
             if self._process_group_leader is ...:
                 preexec = os.setpgrp
             else:
                 pgid = self._process_group_leader.pid
-                preexec = lambda: os.setpgid(0, pgid)  # noqa
+
+                def preexec():
+                    os.setpgid(0, pgid)
+
         self._proc = subprocess.Popen(
             # What to execute
             self.cmd,
