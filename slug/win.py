@@ -16,10 +16,12 @@ def _falsey_errcheck(result, func, arguments):
         raise ctypes.WinError()
     return arguments
 
+
 class SECURITY_ATTRIBUTES(ctypes.Structure):
     _fields_ = [("Length", ctypes.wintypes.DWORD),
                 ("SecDescriptor", ctypes.wintypes.LPVOID),
                 ("InheritHandle", ctypes.wintypes.BOOL)]
+
 
 CreateJobObject = ctypes.windll.kernel32.CreateJobObjectW
 CreateJobObject.argtypes = (ctypes.POINTER(SECURITY_ATTRIBUTES), ctypes.wintypes.LPCWSTR)
@@ -68,4 +70,3 @@ class Process(base.Process):
         """
         if self.pid is not None:
             DebugActiveProcessStop(self.pid)
-
