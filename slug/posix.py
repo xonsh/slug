@@ -84,7 +84,6 @@ class ProcessGroup(base.ProcessGroup):
         super().remove(proc)
 
     def start(self):
-        print(f'xonsh pid={os.getpid()} sid={os.getsid(0)} pgid={os.getpgid(0)}')
         # This relies on consistent iteration order
         procs = iter(self)
         leader = next(procs)
@@ -92,8 +91,6 @@ class ProcessGroup(base.ProcessGroup):
         for p in procs:
             p._process_group_leader = leader
         super().start()
-        for p in self:
-            print(f'proc pid={p.pid} sid={p.sid} pgid={p.pgid}')
 
 class Valve(base.Valve):
     """
