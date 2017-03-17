@@ -25,7 +25,7 @@ class Process(base.Process):
                 preexec = os.setpgrp
             else:
                 pgid = self._process_group_leader.pid
-                preexec = lambda: os.setpgid(0, pgid)
+                preexec = lambda: os.setpgid(0, pgid)  # noqa
         self._proc = subprocess.Popen(
             # What to execute
             self.cmd,
@@ -91,6 +91,7 @@ class ProcessGroup(base.ProcessGroup):
         for p in procs:
             p._process_group_leader = leader
         super().start()
+
 
 class Valve(base.Valve):
     """
