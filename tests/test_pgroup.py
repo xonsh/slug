@@ -37,8 +37,6 @@ def test_terminate():
     # Timing out is failure.
 
 
-@pytest.mark.skipif(not hasattr(ProcessGroup, 'pgid'),
-                    reason="No Process Group IDs")
 def test_kill():
     with ProcessGroup() as pg:
         pg.add(Process(runpy("input()")))
@@ -51,6 +49,8 @@ def test_kill():
     # Timing out is failure.
 
 
+@pytest.mark.skipif(not hasattr(ProcessGroup, 'pgid'),
+                    reason="No Process Group IDs")
 def test_pgid():
     with ProcessGroup() as pg:
         pg.add(Process(runpy("input()")))
