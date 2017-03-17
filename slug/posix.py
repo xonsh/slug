@@ -94,6 +94,7 @@ class ProcessGroup(base.ProcessGroup):
         for p in procs:
             p._process_group_leader = leader
         super().start()
+        self.pgid = leader.pgid
 
 
 class Valve(base.Valve):
