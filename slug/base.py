@@ -160,18 +160,9 @@ class ProcessGroup(collections.abc.Sized, collections.abc.Iterable, collections.
         Add a process to the process group.
         """
         if hasattr(proc, '_process_group'):
-            pg = proc._process_group()
-            if pg is not None:
-                pg.remove(proc)
+            raise ValueError("Cannot move processes between groups")
         proc._process_group = weakref.ref(self)
         self._procs.append(proc)
-
-    def remove(self, proc):
-        """
-        Remove a process from the process group.
-        """
-        self.procs.remove(proc)
-        del proc._process_group
 
     def start(self):
         for proc in self:

@@ -80,12 +80,6 @@ class ProcessGroup(base.ProcessGroup):
         if self.started and proc.started:
             os.setpgid(proc.pid, self.pgid)
 
-    def remove(self, proc):
-        if proc.started:
-            # Re-assign to ourselves
-            os.setpgid(proc.pid, os.getpgid(0))
-        super().remove(proc)
-
     def start(self):
         # This relies on consistent iteration order
         procs = iter(self)
