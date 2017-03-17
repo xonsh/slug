@@ -88,6 +88,9 @@ child.wait()
     assert pout.side_out.read(4) == b'spam'
     pg.terminate()
     pg.join()
-    with pytest.raises(BrokenPipeError):
+    try:
         pin.side_in.write(b'\n')
+        pin.side_in.close()
+    except BrokenPipeError:
+        pass
     assert pout.side_out.read() in b'\r\n'
