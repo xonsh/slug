@@ -91,6 +91,7 @@ child.wait()
     try:
         pin.side_in.write(b'\n')
         pin.side_in.close()
-    except BrokenPipeError:
+    except (BrokenPipeError, OSError):
+        # BrokenPipeError on Linux, nothing on Mac, OSError on Windows
         pass
     assert pout.side_out.read() in b'\r\n'

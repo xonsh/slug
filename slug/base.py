@@ -48,7 +48,8 @@ class Process:
 
     def terminate(self):
         """
-        Ask the process to exit quickly
+        Ask the process to exit quickly, if "asking nicely" is something this
+        platform understands
         """
         if self._proc:
             self._proc.terminate()
@@ -204,7 +205,8 @@ class ProcessGroup(collections.abc.Sized, collections.abc.Iterable, collections.
 
     def terminate(self):
         """
-        Ask the all the processes to exit quickly
+        Ask the all the processes to exit quickly, if asking nicely is
+        something this platform understands.
         """
         for proc in self:
             proc.terminate()

@@ -4,9 +4,10 @@ Versions of the base functionality optimized for the NT kernel.
 The 9x kernel is just unsupported.
 """
 import ctypes
+import _winapi
 from . import base
 
-__all__ = ('Process',)
+__all__ = ('Process', 'ProcessGroup')
 
 
 # {{{ win32 API calls
@@ -28,6 +29,16 @@ CreateJobObject.argtypes = (ctypes.POINTER(SECURITY_ATTRIBUTES), ctypes.wintypes
 CreateJobObject.restype = ctypes.wintypes.HANDLE
 CreateJobObject.errcheck = _falsey_errcheck
 
+AssignProcessToJobObject = ctypes.windll.kernel32.AssignProcessToJobObject
+AssignProcessToJobObject.argtypes = (ctypes.wintypes.HANDLE, ctypes.wintypes.UINT)
+AssignProcessToJobObject.restype = ctypes.wintypes.BOOL
+AssignProcessToJobObject.errcheck = _falsey_errcheck
+
+TerminateJobObject = ctypes.windll.kernel32.TerminateJobObject
+TerminateJobObject.argtypes = (ctypes.wintypes.HANDLE, ctypes.wintypes.HANDLE)
+TerminateJobObject.restype = ctypes.wintypes.BOOL
+TerminateJobObject.errcheck = _falsey_errcheck
+
 DebugActiveProcess = ctypes.windll.kernel32.DebugActiveProcess
 DebugActiveProcess.argtypes = (ctypes.wintypes.DWORD,)
 DebugActiveProcess.restype = ctypes.wintypes.BOOL
@@ -42,6 +53,8 @@ DebugActiveProcessStop = ctypes.windll.kernel32.DebugActiveProcessStop
 DebugActiveProcessStop.argtypes = (ctypes.wintypes.DWORD,)
 DebugActiveProcessStop.restype = ctypes.wintypes.BOOL
 DebugActiveProcessStop.errcheck = _falsey_errcheck
+
+CloseHandle = _winapi.CloseHandle
 
 # }}}
 
@@ -70,3 +83,33 @@ class Process(base.Process):
         """
         if self.pid is not None:
             DebugActiveProcessStop(self.pid)
+
+
+class ProcessGroup(base.ProcessGroup):
+    def __init__(self):
+        super().__init__()
+        self.job = CreateJobObject(None, None)
+
+    def __del__(self):
+        CloseHandle(self.job)
+        self.job = None
+
+    # __contains__ with IsProcessInJob? No matching __iter__.
+
+    def add(self, proc):
+        super().add(proc)
+        if proc.started:
+            # _handle is subprocess.Popen internal. Beats looking up the process ourselves.
+            AssignProcessToJobObject(self.job, proc._proc._handle)
+
+    def start(self):
+        super().start()
+        for proc in self:
+            # _handle is subprocess.Popen internal. Beats looking up the process ourselves.
+            # FIXME: Handle if the process was already joined to us
+            AssignProcessToJobObject(self.job, proc._proc._handle)
+
+    def kill(self):
+        TerminateJobObject(self.job, -9)
+
+    terminate = kill
