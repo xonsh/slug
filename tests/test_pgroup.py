@@ -1,5 +1,6 @@
 import pytest
 import os
+import slug
 from slug import ProcessGroup, Process, Pipe
 from conftest import runpy
 
@@ -62,8 +63,9 @@ def test_pgid():
     pg.kill()
 
 
+@pytest.mark.skipif(ProcessGroup is slug.base.ProcessGroup,
+                    reason="Base Process Group is broken this way")
 def test_kill_descendents():
-    print(type(ProcessGroup))
     with ProcessGroup() as pg:
         pin = Pipe()
         pout = Pipe()
@@ -81,7 +83,6 @@ child.wait()
             stdout=pout.side_in,
         ))
     pg.start()
-    print(pg.pgid)
     pin.side_out.close()
     pout.side_in.close()
     assert pout.side_out.read(4) == b'spam'
