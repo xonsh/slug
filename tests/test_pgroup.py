@@ -108,8 +108,8 @@ def test_lswc_gh10():
 
     with ProcessGroup() as pg:
         pipe = Pipe()
-        pg.add(Process(['echo', 'foo'], stdout=pipe.side_in))
-        pg.add(Process(['cat'], stdin=pipe.side_out))
+        pg.add(Process(['ls'], stdout=pipe.side_in))
+        pg.add(Process(['wc'], stdin=pipe.side_out))
     pg.start()
     pipe.side_in.close()
     pipe.side_out.close()
