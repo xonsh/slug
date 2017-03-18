@@ -88,7 +88,9 @@ class ProcessGroup(base.ProcessGroup):
         for p in procs:
             p._process_group_leader = leader
         super().start()
-        self.pgid = leader.pgid
+        # Don't use pgid here because sometimes programs exit in their first
+        # slice (eg on Mac, see https://github.com/xonsh/slug/issues/10)
+        self.pgid = leader.pid
 
     def kill(self):
         if self.pgid is not None:
