@@ -97,7 +97,6 @@ child.wait()
     assert pout.side_out.read() in b'\r\n'
 
 
-
 @pytest.mark.skipif(not_in_path('ls', 'wc'),
                     reason="Requires the ls and wc binaries")
 def test_lswc_gh10():
@@ -108,9 +107,9 @@ def test_lswc_gh10():
     # From https://github.com/xonsh/slug/issues/10
 
     with ProcessGroup() as pg:
-      pipe = Pipe()
-      pg.add(Process(['echo', 'foo'], stdout=pipe.side_in))
-      pg.add(Process(['cat'], stdin=pipe.side_out))
+        pipe = Pipe()
+        pg.add(Process(['echo', 'foo'], stdout=pipe.side_in))
+        pg.add(Process(['cat'], stdin=pipe.side_out))
     pg.start()
     pipe.side_in.close()
     pipe.side_out.close()
