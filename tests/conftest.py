@@ -1,3 +1,4 @@
+import os
 import sys
 import pytest
 
@@ -19,3 +20,12 @@ def pytest_runtest_setup(item):
 
 def runpy(code):
     return [sys.executable, '-c', code]
+
+
+def not_in_path(*progs):
+    bindirs = os.environ['PATH'].split(os.pathsep)
+    for prog in progs:
+        if not any(os.path.exists(os.path.join(bd, prog)) for bd in bindirs):
+            return True
+    else:
+        return False
