@@ -77,7 +77,7 @@ class ProcessGroup(base.ProcessGroup):
 
     def add(self, proc):
         super().add(proc)
-        if self.started and proc.started:
+        if self.started and proc.started and not isinstance(proc, base.VirtualProcess):
             os.setpgid(proc.pid, self.pgid)
 
     def start(self):
@@ -92,13 +92,26 @@ class ProcessGroup(base.ProcessGroup):
         # slice (eg on Mac, see https://github.com/xonsh/slug/issues/10)
         self.pgid = leader.pid
 
+    def signal(self, sig):
+        if self.pgid is not None:
+            os.kill(-self.pgid, sig)
+        for proc in self:
+            if isinstance(proc, base.VirtualProcess):
+                proc.kill()
+
     def kill(self):
         if self.pgid is not None:
             os.kill(-self.pgid, signal.SIGKILL)
+        for proc in self:
+            if isinstance(proc, base.VirtualProcess):
+                proc.kill()
 
     def terminate(self):
         if self.pgid is not None:
             os.kill(-self.pgid, signal.SIGTERM)
+        for proc in self:
+            if isinstance(proc, base.VirtualProcess):
+                proc.kill()
 
 
 class Valve(base.Valve):

@@ -10,7 +10,7 @@ import collections.abc
 import signal
 __all__ = (
     # Base primitives
-    'Process', 'ProcessGroup', 'Pipe', 'PseudoTerminal',
+    'Process', 'ProcessGroup', 'Pipe', 'PseudoTerminal', 'VirtualProcess',
     # Constants
     'INIT', 'RUNNING', 'PAUSED', 'FINISHED',
     # Plumbing
@@ -34,12 +34,12 @@ class Process:
         self.environ = environ
         self._proc = None
 
-    def signal(self, signal):
+    def signal(self, sig):
         """
         Send a request to the process, by POSIX signal number
         """
         if self._proc:
-            self._proc.send_signal(signal)
+            self._proc.send_signal(sig)
 
     def kill(self):
         """

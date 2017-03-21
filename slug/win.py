@@ -5,6 +5,7 @@ The 9x kernel is just unsupported.
 """
 import ctypes
 import _winapi
+import signal
 from . import base
 
 __all__ = ('Process', 'ProcessGroup')
@@ -98,18 +99,38 @@ class ProcessGroup(base.ProcessGroup):
 
     def add(self, proc):
         super().add(proc)
-        if proc.started:
+        if proc.started and not isinstance(proc, base.VirtualProcess):
             # _handle is subprocess.Popen internal. Beats looking up the process ourselves.
             AssignProcessToJobObject(self.job, proc._proc._handle)
 
     def start(self):
         super().start()
         for proc in self:
+            if isinstance(proc, base.VirtualProcess):
+                continue
             # _handle is subprocess.Popen internal. Beats looking up the process ourselves.
             # FIXME: Handle if the process was already joined to us
             AssignProcessToJobObject(self.job, proc._proc._handle)
 
+    def signal(self, sig):
+        """
+        Signal the process of an event.
+        """
+        if sig == signal.SIGKILL:
+            self.kill()
+        elif sig == signal.SIGTERM:
+            self.terminate()
+        else:
+            super().signal(sig)
+
     def kill(self):
         TerminateJobObject(self.job, -9)
+        for proc in self:
+            if isinstance(proc, base.VirtualProcess):
+                proc.kill()
 
-    terminate = kill
+    def terminate(self):
+        TerminateJobObject(self.job, -9)
+        for proc in self:
+            if isinstance(proc, base.VirtualProcess):
+                proc.terminate()
