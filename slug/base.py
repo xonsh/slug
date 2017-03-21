@@ -288,7 +288,7 @@ class Tee:
         try:
             while True:
                 chunk = self.side_in.read(self.CHUNKSIZE)
-                if chunk == b'':
+                if chunk in (b'', ''):
                     break
                 else:
                     self.callback(chunk)
@@ -319,7 +319,7 @@ class Valve:
     def _thread(self):
         while True:
             chunk = self.side_in.read(self.CHUNKSIZE)
-            if chunk == b'':
+            if chunk in (b'', ''):
                 break
             else:
                 self.side_out.write(chunk)
@@ -371,7 +371,7 @@ class QuickConnect:
     def _thread(self):
         while True:
             chunk = self.side_in.read(self.CHUNKSIZE)
-            if chunk == b'':
+            if chunk in (b'', ''):
                 break
             else:
                 self.side_out.write(chunk)

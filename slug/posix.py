@@ -123,7 +123,7 @@ class Valve(base.Valve):
                 continue
 
             chunk = self.side_in.read(self.CHUNKSIZE)
-            if chunk == b'':
+            if chunk in (b'', ''):
                 break
             else:
                 self.side_out.write(chunk)
@@ -162,7 +162,7 @@ class QuickConnect(base.QuickConnect):
                 continue
 
             chunk = self.side_in.read(self.CHUNKSIZE)
-            if chunk == b'':
+            if chunk in (b'', ''):
                 break
             else:
                 self.side_out.write(chunk)
