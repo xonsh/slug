@@ -5,7 +5,9 @@ import os
 import subprocess
 import threading
 import weakref
+import abc
 import collections.abc
+import signal
 __all__ = (
     # Base primitives
     'Process', 'ProcessGroup', 'Pipe', 'PseudoTerminal',
@@ -234,6 +236,98 @@ class ProcessGroup(collections.abc.Sized, collections.abc.Iterable, collections.
             proc.join()
 
 
+class VirtualProcess(abc.ABC):
+    """
+    An in-process chunk of code managed as a process.
+
+    The API is largely compatible with Process.
+    """
+
+    @abc.abstractmethod
+    def start(self):
+        """
+        Start the process
+        """
+
+    @abc.abstractmethod
+    def join(self):
+        """
+        Wait for the process to die or pause.
+        """
+
+    @abc.abstractmethod
+    def status(self):
+        """
+        Current status of the process.
+        """
+
+    @abc.abstractmethod
+    def terminate(self):
+        """
+        Politely ask the process to quit.
+        """
+
+    @abc.abstractmethod
+    def kill(self):
+        """
+        Rudely demand the process quits.
+        """
+
+    @abc.abstractmethod
+    def pause(self):
+        """
+        The process should pause what it's doing.
+        """
+
+    @abc.abstractmethod
+    def unpause(self):
+        """
+        The process should continue what it's doing.
+        """
+
+    def signal(self, sig):
+        """
+        Signal the process of an event.
+        """
+        if sig == signal.SIGKILL:
+            self.kill()
+        elif sig == signal.SIGTERM:
+            self.terminate()
+        elif sig == signal.SIGSTOP:
+            self.pause()
+        elif sig == signal.SIGCONT:
+            self.unpause()
+        else:
+            self.on_signal(sig)
+
+    @abc.abstractmethod
+    def on_signal(self, sig):
+        """
+        Handle additional signals
+        """
+
+    @property
+    @abc.abstractmethod
+    def return_code(self):
+        """
+        The return code of the process.
+        """
+
+
+class ThreadedVirtualProcess(threading.Thread, VirtualProcess):
+    """
+    A Virtual Process based on threads.
+    """
+
+    @abc.abstractmethod
+    def run(self):
+        pass
+
+
+##################
+# {{{ Plumbing
+##################
+
 class Pipe:
     """
     A one-way byte stream.
@@ -377,3 +471,5 @@ class QuickConnect:
                 self.side_out.write(chunk)
         if not self.keepopen:
             self.side_out.close()
+
+# }}}
