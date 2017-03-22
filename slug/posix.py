@@ -82,15 +82,18 @@ class ProcessGroup(base.ProcessGroup):
 
     def start(self):
         # This relies on consistent iteration order
-        procs = iter(self)
-        leader = next(procs)
-        leader._process_group_leader = ...
-        for p in procs:
-            p._process_group_leader = leader
+        realprocs = [proc for proc in self if not isinstance(proc, base.VirtualProcess)]
+        if realprocs:
+            realprocs = iter(realprocs)
+            leader = next(realprocs)
+            leader._process_group_leader = ...
+            for p in realprocs:
+                p._process_group_leader = leader
         super().start()
-        # Don't use pgid here because sometimes programs exit in their first
-        # slice (eg on Mac, see https://github.com/xonsh/slug/issues/10)
-        self.pgid = leader.pid
+        if realprocs:
+            # Don't use pgid here because sometimes programs exit in their first
+            # slice (eg on Mac, see https://github.com/xonsh/slug/issues/10)
+            self.pgid = leader.pid
 
     def signal(self, sig):
         if self.pgid is not None:

@@ -11,6 +11,7 @@ import signal
 __all__ = (
     # Base primitives
     'Process', 'ProcessGroup', 'Pipe', 'PseudoTerminal', 'VirtualProcess',
+    'ThreadedVirtualProcess',
     # Constants
     'INIT', 'RUNNING', 'PAUSED', 'FINISHED',
     # Plumbing
@@ -318,6 +319,8 @@ class ThreadedVirtualProcess(threading.Thread, VirtualProcess):
     """
     A Virtual Process based on threads.
     """
+    def __init__(self):
+        super().__init__(daemon=True)  # Die when the shell dies, let job management keep it alive
 
     @abc.abstractmethod
     def run(self):
