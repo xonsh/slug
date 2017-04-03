@@ -5,5 +5,5 @@ fixes:
 ignore:
   - ".*/virtualenv/.*"
   - "tests"
-  - "\.tox"
-  - "!\.tox/.*/slug"
+  - '\.tox'
+  - '!\.tox/.*/slug'
