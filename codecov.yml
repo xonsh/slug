@@ -4,3 +4,6 @@ fixes:
   - ".*.egg/::"
 ignore:
   - ".*/virtualenv/.*"
+  - "tests"
+  - "\.tox"
+  - "!\.tox/.*/slug"
