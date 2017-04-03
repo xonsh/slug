@@ -7,6 +7,8 @@ matrix:
           python: 3.6
         - os: linux
           python: "nightly"
+        - os: linux
+          python: pypy3
         # - os: osx
         #   python: 3.4
         # - os: osx
