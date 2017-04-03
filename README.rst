@@ -11,9 +11,6 @@ slug
 .. image:: https://ci.appveyor.com/api/projects/status/github/xonsh/slug?svg=true
     :target: https://ci.appveyor.com/project/xonsh/slug
 
-.. image:: https://circleci.com/gh/xonsh/slug.svg?style=shield
-    :target: https://circleci.com/gh/xonsh/slug
-
 .. image:: https://landscape.io/github/xonsh/slug/master/landscape.svg?style=flat
     :target: https://landscape.io/github/xonsh/slug/master
     :alt: Code Health
