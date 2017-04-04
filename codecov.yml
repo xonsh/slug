@@ -4,6 +4,5 @@ fixes:
   - ".*.egg/::"
 ignore:
   - ".*/virtualenv/.*"
-  - "tests"
-  - '\.tox'
-  - '!\.tox/.*/slug'
+  - "tests/"
+  - "private/"  # For... appveyor? Dunno.
