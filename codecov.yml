@@ -1,0 +1,8 @@
+codecov: 
+  disable_default_path_fixes: yes
+fixes:
+  - ".*.egg/::"
+ignore:
+  - ".*/virtualenv/.*"
+  - "tests/"
+  - "private/"  # For... appveyor? Dunno.
