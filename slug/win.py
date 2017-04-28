@@ -19,6 +19,12 @@ def _falsey_errcheck(result, func, arguments):
     return arguments
 
 
+def _truthy_errcheck_nt(result, func, arguments):
+    if result:
+        raise OSError(None, "NT Error", None, result)
+    return arguments
+
+
 class SECURITY_ATTRIBUTES(ctypes.Structure):
     _fields_ = [("Length", ctypes.wintypes.DWORD),
                 ("SecDescriptor", ctypes.wintypes.LPVOID),
@@ -40,32 +46,27 @@ TerminateJobObject.argtypes = (ctypes.wintypes.HANDLE, ctypes.wintypes.HANDLE)
 TerminateJobObject.restype = ctypes.wintypes.BOOL
 TerminateJobObject.errcheck = _falsey_errcheck
 
-DebugActiveProcess = ctypes.windll.kernel32.DebugActiveProcess
-DebugActiveProcess.argtypes = (ctypes.wintypes.DWORD,)
-DebugActiveProcess.restype = ctypes.wintypes.BOOL
-DebugActiveProcess.errcheck = _falsey_errcheck
-
-DebugSetProcessKillOnExit = ctypes.windll.kernel32.DebugSetProcessKillOnExit
-DebugSetProcessKillOnExit.argtypes = (ctypes.wintypes.BOOL,)
-DebugSetProcessKillOnExit.restype = ctypes.wintypes.BOOL
-DebugSetProcessKillOnExit.errcheck = _falsey_errcheck
-
-DebugActiveProcessStop = ctypes.windll.kernel32.DebugActiveProcessStop
-DebugActiveProcessStop.argtypes = (ctypes.wintypes.DWORD,)
-DebugActiveProcessStop.restype = ctypes.wintypes.BOOL
-DebugActiveProcessStop.errcheck = _falsey_errcheck
-
 CloseHandle = _winapi.CloseHandle
+
+OpenProcess = _winapi.OpenProcess
+
+PROCESS_SUSPEND_RESUME = ctypes.DWORD(0x0800)
+
+NtSuspendProcess = ctypes.windll.ntdll.NtSuspendProcess
+NtSuspendProcess.argtypes = (ctypes.wintypes.HANDLE,)
+NtSuspendProcess.restype = ctypes.c_long
+NtSuspendProcess.errcheck = _truthy_errcheck_nt
+
+NtResumeProcess = ctypes.windll.ntdll.NtResumeProcess
+NtResumeProcess.argtypes = (ctypes.wintypes.HANDLE,)
+NtResumeProcess.restype = ctypes.c_long
+NtResumeProcess.errcheck = _truthy_errcheck_nt
 
 # }}}
 
 
 class Process(base.Process):
-    # https://stackoverflow.com/questions/11010165/how-to-suspend-resume-a-process-in-windows
-    # NtSuspendProcess would be better, but
-    #  1. maintaining a minority port
-    #  2. undocumented functions
-    #  3. No references to the resuming function
+    # https://groups.google.com/d/topic/microsoft.public.win32.programmer.kernel/IA-y-isvL9I/discussion
 
     # Note: Because Cygwin has complete control of all the processes, it does other things.
     # We don't have control of our children, so we can't do those things.
@@ -74,17 +75,22 @@ class Process(base.Process):
         Pause the process, able to be continued later
         """
         if self.pid is not None:
-            DebugActiveProcess(self.pid)
-            # When we exit, the process will resume. The alternative is for it to die.
-            DebugSetProcessKillOnExit(False)
+            hproc = OpenProcess(PROCESS_SUSPEND_RESUME, False, self.pid)
+            try:
+                NtSuspendProcess(hproc)
+            finally:
+                CloseHandle(hproc)
 
     def unpause(self):
         """
         Continue the process after it's been paused
         """
         if self.pid is not None:
-            DebugActiveProcessStop(self.pid)
-
+            hproc = OpenProcess(PROCESS_SUSPEND_RESUME, False, self.pid)
+            try:
+                NtResumeProcess(hproc)
+            finally:
+                CloseHandle(hproc)
 
 class ProcessGroup(base.ProcessGroup):
     def __init__(self):
