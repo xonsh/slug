@@ -50,7 +50,7 @@ CloseHandle = _winapi.CloseHandle
 
 OpenProcess = _winapi.OpenProcess
 
-PROCESS_SUSPEND_RESUME = ctypes.wintypes.DWORD(0x0800)
+PROCESS_SUSPEND_RESUME = 0x0800
 
 NtSuspendProcess = ctypes.windll.ntdll.NtSuspendProcess
 NtSuspendProcess.argtypes = (ctypes.wintypes.HANDLE,)
