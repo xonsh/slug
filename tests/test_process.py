@@ -161,16 +161,17 @@ def test_pause_unpause():
 
 
 @pytest.mark.parametrize('st', [
-    ('',),
-    ('foo',),
-    ('foo&bar',),
-    ('foo$?-/_"\\',),
-    ('^&<>|',),
-    ('()<>',),
-    ('this /?',),
+    '',
+    'foo',
+    'foo&bar',
+    'foo$?-/_"\\',
+    '^&<>|',
+    '()<>',
+    'this /?',
 ])
 def test_argv_roundtrip(st):
-    # This is for the benefit of Windows and other platforms that don't actually pass processes a paramaterized argv
+    # This is for the benefit of Windows and other platforms that don't actually
+    # pass processes a paramaterized argv
     pi = Pipe()
     proc = Process(runpy(r'import sys; print(sys.argv[1])') + [st], stdout=pi.side_in)
     proc.start()
@@ -178,4 +179,5 @@ def test_argv_roundtrip(st):
     # Pipe is closed but process might still be live
     proc.join()  # Commenting this out causes data to be None?
     assert proc.return_code == 0
-    assert data.rstrip('\r\n') == st
+    assert data.rstrip(b'\r\n') == st.encode('ascii')
+    # We're not testing 8-bit clean, but special chars, which are all ascii
