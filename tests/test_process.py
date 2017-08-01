@@ -160,7 +160,7 @@ def test_pause_unpause():
     assert gap > 0.9  # 0.9 for leeway
 
 
- @pytest.mark.parametrize('st', [
+@pytest.mark.parametrize('st', [
     ('',),
     ('foo',),
     ('foo&bar',),
