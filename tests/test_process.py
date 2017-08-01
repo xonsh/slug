@@ -1,3 +1,4 @@
+import pytest
 from conftest import runpy
 from slug import Process, Pipe
 
@@ -157,3 +158,24 @@ def test_pause_unpause():
     pause_end = min(above)
     gap = pause_end - pause_begin
     assert gap > 0.9  # 0.9 for leeway
+
+
+ @pytest.mark.parametrize('st', [
+    ('',),
+    ('foo',),
+    ('foo&bar',),
+    ('foo$?-/_"\\',),
+    ('^&<>|',),
+    ('()<>',),
+    ('this /?',),
+])
+def test_argv_roundtrip(st):
+    # This is for the benefit of Windows and other platforms that don't actually pass processes a paramaterized argv
+    pi = Pipe()
+    proc = Process(runpy(r'import sys; print(sys.argv[1])') + [st], stdout=pi.side_in)
+    proc.start()
+    data = pi.side_out.readline()
+    # Pipe is closed but process might still be live
+    proc.join()  # Commenting this out causes data to be None?
+    assert proc.return_code == 0
+    assert data.rstrip('\r\n') == st
